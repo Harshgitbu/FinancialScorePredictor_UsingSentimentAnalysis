@@ -37,7 +37,7 @@ Performance after optimizing:
 Significantly improved over baseline (63%) and unbalanced recall values 
 ![BaselineModel](visualization/Baseline_model.png)
 
-Interpretability, Feature Importance tracked, Sentiment-based features ranked in top 5
+Interpretability, Feature Importance tracked, Sentiment-based features giving about 20% variation in the predictions.
 ![FeatureImportance](visualization/Feature_Imp_final.png)
 
 
