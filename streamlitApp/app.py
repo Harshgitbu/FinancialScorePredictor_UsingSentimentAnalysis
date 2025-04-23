@@ -1,8 +1,10 @@
 import streamlit as st
+
+st.set_page_config(page_title="Stock Sentiment Predictor", layout="wide")
+
 import pandas as pd
 import joblib
 from datetime import timedelta
-from transformers import pipeline
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -17,13 +19,13 @@ def load_encoder():
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("data/ModelDataFile.csv")
+    df = pd.read_csv("data/stocks_gold_final.csv")
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     return df
 
 @st.cache_data
 def load_sample_preds():
-    return pd.read_csv("data/Actual_vs_Predictions.csv")
+    return pd.read_csv("data/actual_vs_prediction.csv")
 
 # Load models and data
 model = load_model()
@@ -31,13 +33,11 @@ le = load_encoder()
 data = load_data()
 sample_preds = load_sample_preds()
 
-# Sentiment pipelines (disabled for now to avoid cloud errors)
+# Mock sentiment pipelines (Fast load without transformers)
 twitter_sentiment = lambda x: {"label": "Neutral", "score": 0.5}
 news_sentiment = lambda x: {"label": "Neutral", "score": 0.5}
 
-# ------------------ UI ------------------
-st.set_page_config(layout="wide")
-
+# ------------------ Sidebar ------------------
 st.sidebar.title("📈 Stock Action Predictor")
 section = st.sidebar.radio("Jump to:", ["Overview", "Prediction", "Backtest Mode", "Performance"])
 
@@ -63,13 +63,12 @@ elif section == "Prediction":
     st.header("🔮 Make a Prediction")
     tickers = sorted(data['ticker'].unique())
     selected = st.selectbox("Choose a Stock", tickers)
-    user_input = st.text_input("Enter recent headline or tweet about this stock:", "Strong Q2 earnings, great future outlook!")
+    user_input = st.text_input("Enter a recent headline/tweet:", "Strong Q2 earnings, great future outlook!")
 
     if st.button("Predict Action"):
-        # Simulate sentiment pipeline
+        # Simulated sentiment score
         score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
 
-        # Pull last row for ticker
         row = data[data['ticker'] == selected].sort_values("date").iloc[-1]
 
         features = [
@@ -88,7 +87,7 @@ elif section == "Prediction":
 
         st.success(f"📢 Model Prediction for {selected}: **{prediction}**")
 
-        st.subheader(f"📊 Historical Trend for {selected}")
+        st.subheader(f"📊 Last 30 Days: {selected}")
         hist = data[data['ticker'] == selected].sort_values("date")[-30:]
         st.line_chart(hist.set_index("date")["price"])
 
@@ -132,6 +131,7 @@ elif section == "Performance":
     st.subheader("📝 Random Sample of Actual vs Predicted")
     sample_view = sample_preds[['ticker','price','final_sentiment_score','sentiment_3d_avg','ret3','vol7','Actual_Action','Predicted_Action']]
     st.dataframe(sample_view.sample(20).reset_index(drop=True))
+
 
 # ------------------- Footer -------------------
 st.markdown("---")
