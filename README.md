@@ -1,7 +1,7 @@
 # FinancialScorePredictor_UsingSentimentAnalysis
 A full-fledged machine learning pipeline to predict Buy / Hold / Sell signals for S&P 500 stocks using sentiment analysis on Twitter & News articles, historical stock performance, and engineered financial indicators. Stock Sentiment-Based Action Predictor
 
-The data is engineered for S&P 500 stocks. The number of unique ticker symbols covered by the model is: 456
+The data is engineered for S&P 500 stocks. The number of unique stocks covered by the model is: 456
 
 **Project Summary :**
 
@@ -21,7 +21,7 @@ This project builds a predictive model that:
 
 Each row contains: news_score, twitter_score, Weighted final score: 0.65 * news + 0.35 * twitter
 
-![Sample Predictions](visualization/sample_predictions_table.png)
+![SentimentPerformance](visualization/Sentiment_performance.png)
 
 **Stock Data:** Includes features like: price, volume, low_bid, high_ask, sp500_return
 Engineered Features: ret3: 3-day cumulative return, vol7: 7-day volatility (std), vma7: 7-day average volume, bidask_spread: spread between ask and bid prices
@@ -32,11 +32,13 @@ sentiment_3d_avg, sentiment_7d_avg: rolling sentiment windows
 Final Model: XGBoost (Bayesian Optimized) - Applied SMOTETomek to balance class imbalance, Tuned with Bayesian Search (skopt)
 
 Performance after optimizing:
-![Sample Predictions](visualization/sample_predictions_table.png)
+![FinalModel](visualization/Bayes_XGB.png)
 
-Significantly improved over baseline (61%) and unbalanced recall values - ![Sample Predictions](visualization/sample_predictions_table.png)
+Significantly improved over baseline (61%) and unbalanced recall values 
+![BaselineModel](visualization/Baseline_model.png)
 
-Interpretability, Feature Importance tracked, Sentiment-based features ranked in top 5 - ![Sample Predictions](visualization/sample_predictions_table.png)
+Interpretability, Feature Importance tracked, Sentiment-based features ranked in top 5
+![FeatureImportance](visualization/Feature_Imp_final.png)
 
 
 **Sample Predictions**
@@ -62,4 +64,6 @@ See data/Actual_vs_Predictions.csv for 100 randomly sampled tickers with actual 
 
 **Visual Gallery**
 
-![Sample Predictions](visualization/sample_predictions_table.png)
+![ThresholdStocksRange](visualization/Threshold_range.png)
+
+![Top10SentimentVolatileStocks](visualization/Top_10_sentiment_volatile_stocks.png)
