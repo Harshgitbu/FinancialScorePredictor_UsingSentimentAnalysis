@@ -19,7 +19,7 @@ def load_encoder():
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("data/ModelDat.csv")
+    df = pd.read_csv("data/ModelDataFile.csv")
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     return df
 
