@@ -21,12 +21,12 @@ le = load_encoder()
 # Load actual vs prediction (for display)
 @st.cache_data
 def load_sample_predictions():
-    return pd.read_csv("data/actual_vs_prediction.csv")
+    return pd.read_csv("data/Actual_vs_Prediction.csv")
 
 # Load past stock data (gold layer historical stock sentiment data)
 @st.cache_data
 def load_gold_data():
-    return pd.read_csv("data/stocks_gold_final.csv", parse_dates=['date'])
+    return pd.read_csv("data/ModelDataFile.csv", parse_dates=['date'])
 
 def simulate_sentiment(text):
     text = text.lower()
