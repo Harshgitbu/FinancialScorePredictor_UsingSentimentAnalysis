@@ -29,12 +29,12 @@ sentiment_3d_avg, sentiment_7d_avg: rolling sentiment windows
 
 ## **Modeling Approach**
 
-Final Model: XGBoost (Bayesian Optimized) - Applied SMOTETomek to balance class imbalance, Tuned with Bayesian Search (skopt)
+Final Model (71% accuracy): XGBoost (Bayesian Optimized) - Applied SMOTETomek to balance class imbalance, Tuned with Bayesian Search (skopt)
 
 Performance after optimizing:
 ![FinalModel](visualization/Bayes_XGB.png)
 
-Significantly improved over baseline (61%) and unbalanced recall values 
+Significantly improved over baseline (63%) and unbalanced recall values 
 ![BaselineModel](visualization/Baseline_model.png)
 
 Interpretability, Feature Importance tracked, Sentiment-based features ranked in top 5
