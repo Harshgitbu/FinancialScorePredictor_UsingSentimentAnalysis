@@ -19,13 +19,13 @@ def load_encoder():
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("data/stocks_gold_final.csv")
+    df = pd.read_csv("data/ModelDataFile.csv")
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     return df
 
 @st.cache_data
 def load_sample_preds():
-    return pd.read_csv("data/actual_vs_prediction.csv")
+    return pd.read_csv("data/Actual_vs_Predictions.csv")
 
 # Load models and data
 model = load_model()
