@@ -2,75 +2,101 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-import xgboost as xgb
-from transformers import pipeline
 
-# ------------------ Cache assets ------------------
+st.set_page_config(page_title="Financial Sentiment Stock Predictor", layout="centered")
+
+# ------------------- Load Model & Label Encoder -------------------
 @st.cache_resource
 def load_model():
-    model = joblib.load("models/final_xgb_model.pkl")
-    return model
+    return joblib.load("models/final_xgb_model.pkl")
 
 @st.cache_resource
 def load_encoder():
     return joblib.load("models/label_encoder.pkl")
 
-# ------------------ Load assets ------------------
 model = load_model()
 le = load_encoder()
 
-# Safe-load XGB booster (for advanced cases)
-# booster = xgb.Booster()
-# booster.load_model("models/final_xgb_model.json")
+# ------------------- Simple Sentiment Simulator -------------------
+def simulate_sentiment(text):
+    text = text.lower()
+    pos_words = ['buy', 'gain', 'growth', 'bull', 'profit', 'strong', 'positive']
+    neg_words = ['sell', 'loss', 'drop', 'bear', 'crash', 'weak', 'negative']
 
-# ------------------ Sentiment Pipelines ------------------
-twitter_sentiment = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment")
-news_sentiment = pipeline("sentiment-analysis", model="yiyanghkust/finbert-tone")
+    score = 0
+    for word in pos_words:
+        if word in text:
+            score += 0.3
+    for word in neg_words:
+        if word in text:
+            score -= 0.3
+    return np.clip(score, -1, 1)
 
-# ------------------ App Layout ------------------
-st.set_page_config(page_title="Stock Score Predictor", layout="centered")
-st.title("📈 Stock Sentiment & Action Predictor")
-st.markdown("Get Buy / Hold / Sell signals powered by sentiment + stock indicators.")
+# ------------------- Default Stock Feature Values -------------------
+default_inputs = {
+    'price': 100.0,
+    'volume': 1_000_000,
+    'low_bid': 99.0,
+    'high_ask': 101.0,
+    'sp500_return': 0.001,
+    'news_score': 0.1,
+    'twitter_score': 0.1,
+    'final_sentiment_score': 0.1,
+    'sentiment_1d': 0.1,
+    'sentiment_3d_avg': 0.1,
+    'sentiment_7d_avg': 0.1,
+    'ret3': 0.01,
+    'vol7': 0.02,
+    'vma7': 1_200_000,
+    'bidask_spread': 2.0
+}
 
-# ------------------ Input Fields ------------------
-ticker = st.selectbox("Select a Ticker (Example: ORCL, TSLA, AAPL)", ["AAPL", "TSLA", "GOOGL", "MSFT", "ORCL"])
-tweet = st.text_area("Enter a Tweet or Headline")
+# ------------------- Streamlit App UI -------------------
+st.title("📈 Financial Stock Action Predictor")
+st.markdown("""
+This app uses **sentiment analysis + financial indicators** to predict a stock action:  
+**Buy**, **Hold**, or **Sell**  
+(Example: "TSLA is up! This is bullish." → Buy)
 
-if st.button("Predict Action"):
-    if tweet.strip() == "":
-        st.warning("Please enter a tweet or headline text.")
+""")
+
+col1, col2 = st.columns(2)
+with col1:
+    ticker = st.selectbox("Choose a Stock Ticker", ['AAPL', 'MSFT', 'TSLA', 'GOOG', 'META', 'NFLX', 'ORCL'])
+
+with col2:
+    st.write("💡 Tip: Use market terms like _bullish_, _growth_, _crash_, etc.")
+    user_text = st.text_area("Enter sentiment text (from Twitter or News):", height=100)
+
+st.markdown("---")
+
+# ------------------- Predict Button -------------------
+if st.button("🔍 Predict Stock Action"):
+    if not user_text.strip():
+        st.warning("Please enter a sample sentiment text.")
     else:
-        # ------------------ Sentiment Scoring ------------------
-        tw_pred = twitter_sentiment(tweet)[0]
-        nw_pred = news_sentiment(tweet)[0]
+        # Generate sentiment score
+        sentiment_score = simulate_sentiment(user_text)
 
-        tw_score = tw_pred['score'] if 'POS' in tw_pred['label'].upper() else (-tw_pred['score'] if 'NEG' in tw_pred['label'].upper() else 0)
-        nw_score = nw_pred['score'] if 'POS' in nw_pred['label'].upper() else (-nw_pred['score'] if 'NEG' in nw_pred['label'].upper() else 0)
+        # Populate final input features
+        features = default_inputs.copy()
+        features['news_score'] = sentiment_score
+        features['twitter_score'] = sentiment_score
+        features['final_sentiment_score'] = 0.65 * sentiment_score + 0.35 * sentiment_score
 
-        final_sentiment = 0.65 * nw_score + 0.35 * tw_score
+        input_df = pd.DataFrame([features])
+        prediction = model.predict(input_df)
+        predicted_action = le.inverse_transform(prediction)[0]
 
-        # ------------------ Default Financial Feature Values ------------------
-        avg_features = {
-            'price': 150.0, 'volume': 2e7, 'low_bid': 148.0, 'high_ask': 151.5, 'sp500_return': 0.001,
-            'news_score': nw_score, 'twitter_score': tw_score, 'final_sentiment_score': final_sentiment,
-            'sentiment_1d': final_sentiment, 'sentiment_3d_avg': final_sentiment,
-            'sentiment_7d_avg': final_sentiment, 'ret3': 0.015, 'vol7': 0.02,
-            'vma7': 2e7, 'bidask_spread': 3.5
-        }
+        # ------------------- Display Result -------------------
+        st.success(f"📌 **Predicted Action for {ticker}: {predicted_action.upper()}**")
+        st.metric(label="Inferred Sentiment Score", value=round(sentiment_score, 3))
+        st.info("✅ Based on combined sentiment and financial features.")
 
-        input_df = pd.DataFrame([avg_features])
+        # Show the full input snapshot (optional)
+        with st.expander("See model input features"):
+            st.dataframe(input_df.T.rename(columns={0: "Value"}))
 
-        # ------------------ Prediction ------------------
-        pred = model.predict(input_df)[0]
-        pred_label = le.inverse_transform([pred])[0]
-
-        # ------------------ Display Output ------------------
-        st.success(f"Predicted Action for {ticker}: **{pred_label}**")
-        st.markdown(f"\n\n**🧠 Sentiment Scores:**\n- News: `{nw_score:.2f}`\n- Twitter: `{tw_score:.2f}`\n- Final Weighted: `{final_sentiment:.2f}`")
-
-        st.markdown("---")
-        st.markdown("_Note: Default financial metrics used. Sentiment drives prediction._")
-
-# ------------------ Footer ------------------
+# ------------------- Footer -------------------
 st.markdown("---")
 st.caption("Built by Harsh Shah, Ishanay Sharma, Saketh Bolina| Powered by Sentiment + Market Signals")
