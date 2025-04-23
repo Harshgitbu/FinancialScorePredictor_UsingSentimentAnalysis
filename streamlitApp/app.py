@@ -142,7 +142,7 @@ elif section == "Performance":
     st.header("📈 Model Evaluation")
 
     st.subheader("📝 Random Sample of Actual vs Predicted")
-    sample_view = sample_preds[['ticker','price','final_sentiment_score','sentiment_3d_avg','ret3','vol7','Actual_Action','Predicted_Action']]
+    sample_view = sample_preds[['ticker','price','final_sentiment_score','sentiment_3d_avg','ret3','Actual_Action','Predicted_Action']]
     st.dataframe(sample_view.sample(20).reset_index(drop=True))
 
 # ------------------- Footer -------------------
