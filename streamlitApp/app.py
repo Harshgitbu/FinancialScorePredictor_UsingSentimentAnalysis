@@ -1,5 +1,6 @@
 import streamlit as st
 
+# MUST BE FIRST!
 st.set_page_config(page_title="Stock Sentiment Predictor", layout="wide")
 
 import pandas as pd
@@ -21,6 +22,23 @@ def load_encoder():
 def load_data():
     df = pd.read_csv("data/ModelDataFile.csv")
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+    # Add missing engineered features if not present
+    if 'ret3' not in df.columns:
+        df['ret3'] = (df.groupby('ticker')['daily_return']
+                        .rolling(3, min_periods=1).sum()
+                        .reset_index(0, drop=True))
+    if 'vol7' not in df.columns:
+        df['vol7'] = (df.groupby('ticker')['daily_return']
+                        .rolling(7, min_periods=1).std()
+                        .reset_index(0, drop=True)).fillna(0)
+    if 'vma7' not in df.columns:
+        df['vma7'] = (df.groupby('ticker')['volume']
+                        .rolling(7, min_periods=1).mean()
+                        .reset_index(0, drop=True))
+    if 'bidask_spread' not in df.columns:
+        df['bidask_spread'] = df['high_ask'] - df['low_bid']
+
     return df
 
 @st.cache_data
@@ -49,7 +67,7 @@ if section == "Overview":
     - 🤖 News & Twitter Sentiment (via FinBERT + Twitter RoBERTa)
     - 📉 Stock Indicators (price, volume, volatility, etc.)
     - 🧠 Bayesian-optimized XGBoost classifier
-    
+
     **Final Model Accuracy:** ~71% on historic data (balanced classes)
     """)
 
@@ -66,7 +84,6 @@ elif section == "Prediction":
     user_input = st.text_input("Enter a recent headline/tweet:", "Strong Q2 earnings, great future outlook!")
 
     if st.button("Predict Action"):
-        # Simulated sentiment score
         score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
 
         row = data[data['ticker'] == selected].sort_values("date").iloc[-1]
@@ -106,10 +123,10 @@ elif section == "Backtest Mode":
     week_after = role_df[(role_df['date'] > past_date) & (role_df['date'] <= past_date + timedelta(days=7))]
 
     st.subheader("📅 Week Before")
-    st.dataframe(week_before[['date','price','sentiment_1d','final_sentiment_score']])
+    st.dataframe(week_before[['date','price','sentiment_3d_avg','sentiment_7d_avg','final_sentiment_score']])
 
     st.subheader("📅 Week After")
-    st.dataframe(week_after[['date','price','sentiment_1d','final_sentiment_score']])
+    st.dataframe(week_after[['date','price','sentiment_3d_avg','sentiment_7d_avg','final_sentiment_score']])
 
     fig, ax = plt.subplots(figsize=(10,4))
     plt.plot(role_df['date'], role_df['price'], label="Price", marker='o')
@@ -124,14 +141,9 @@ elif section == "Backtest Mode":
 elif section == "Performance":
     st.header("📈 Model Evaluation")
 
-    col1, col2 = st.columns(2)
-    col1.image("visualization/conf_matrix_final.png", caption="Confusion Matrix")
-    col2.image("visualization/Actual_vs_Prediction_SS.png", caption="Sample Predictions")
-
     st.subheader("📝 Random Sample of Actual vs Predicted")
     sample_view = sample_preds[['ticker','price','final_sentiment_score','sentiment_3d_avg','ret3','vol7','Actual_Action','Predicted_Action']]
     st.dataframe(sample_view.sample(20).reset_index(drop=True))
-
 
 # ------------------- Footer -------------------
 st.markdown("---")
