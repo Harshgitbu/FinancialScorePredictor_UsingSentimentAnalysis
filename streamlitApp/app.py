@@ -145,6 +145,3 @@ elif section == "Performance":
     sample_view = sample_preds[['ticker','price','final_sentiment_score','sentiment_3d_avg','ret3','Actual_Action','Predicted_Action']]
     st.dataframe(sample_view.sample(20).reset_index(drop=True))
 
-# ------------------- Footer -------------------
-st.markdown("---")
-st.caption("Built by Harsh Shah, Ishanay Sharma, Saketh Bolina| Powered by Sentiment + Market Signals")
