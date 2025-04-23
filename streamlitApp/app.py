@@ -103,4 +103,4 @@ if st.button("Predict Action"):
 
 # ----------- Footer -----------
 st.markdown("---")
-st.caption("Built by Harsh Shah | Powered by Sentiment + Market Signals")
+st.caption("Built by Harsh Shah, Ishanay Sharma, Saketh Bolina| Powered by Sentiment + Market Signals")

@@ -67,3 +67,5 @@ See data/Actual_vs_Predictions.csv for 100 randomly sampled tickers with actual 
 ![ThresholdStocksRange](visualization/Threshold_range.png)
 
 ![Top10SentimentVolatileStocks](visualization/Top_10_sentiment_volatile_stocks.png)
+
+Creators: Harsh Shah, Ishanay Sharma, Saketh Bolina
