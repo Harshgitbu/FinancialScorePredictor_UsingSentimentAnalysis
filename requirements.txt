@@ -8,3 +8,5 @@ transformers
 streamlit
 matplotlib
 seaborn
+yfinance
+plotly
