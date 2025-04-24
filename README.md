@@ -3,7 +3,7 @@ A full-fledged machine learning pipeline to predict Buy / Hold / Sell signals fo
 
 The data is engineered for S&P 500 stocks. The number of unique stocks covered by the model is: 456
 
-**Project Summary :**
+## **Project Summary :**
 
 This project builds a predictive model that: 
 1) Ingests Twitter and News data to compute sentiment scores
@@ -11,11 +11,11 @@ This project builds a predictive model that:
 3) Applies lag-based sentiment aggregation
 4) Trains a model to classify stock actions as Buy, Hold, or Sell
 
-**Goal:** Provide users with a daily stock strength signal powered by sentiment fluctuations and market data.
+### **Goal:** Provide users with a daily stock strength signal powered by sentiment fluctuations and market data.
 
-**Data Sources & Engineering**
+## **Data Sources & Engineering**
 
-**Sentiment Data:**
+### **Sentiment Data:**
 1) Twitter: Analyzed using cardiffnlp/twitter-roberta-base-sentiment
 2) News: Analyzed using yiyanghkust/finbert-tone
 
@@ -23,25 +23,25 @@ Each row contains: news_score, twitter_score, Weighted final score: 0.65 * news 
 
 ![SentimentPerformance](visualization/Sentiment_performance.png)
 
-**Stock Data:** Includes features like: price, volume, low_bid, high_ask, sp500_return
+### **Stock Data:** Includes features like: price, volume, low_bid, high_ask, sp500_return
 Engineered Features: ret3: 3-day cumulative return, vol7: 7-day volatility (std), vma7: 7-day average volume, bidask_spread: spread between ask and bid prices
 sentiment_3d_avg, sentiment_7d_avg: rolling sentiment windows
 
-**Modeling Approach**
+## **Modeling Approach**
 
-Final Model: XGBoost (Bayesian Optimized) - Applied SMOTETomek to balance class imbalance, Tuned with Bayesian Search (skopt)
+Final Model (71% accuracy): XGBoost (Bayesian Optimized) - Applied SMOTETomek to balance class imbalance, Tuned with Bayesian Search (skopt)
 
 Performance after optimizing:
 ![FinalModel](visualization/Bayes_XGB.png)
 
-Significantly improved over baseline (61%) and unbalanced recall values 
+Significantly improved over baseline (63%) and unbalanced recall values 
 ![BaselineModel](visualization/Baseline_model.png)
 
-Interpretability, Feature Importance tracked, Sentiment-based features ranked in top 5
+Interpretability, Feature Importance tracked, Sentiment-based features giving about 15% variation in the predictions.
 ![FeatureImportance](visualization/Feature_Imp_final.png)
 
 
-**Sample Predictions**
+## **Sample Predictions**
 
 Preview of model predictions:
 
@@ -62,10 +62,10 @@ Preview of model predictions:
 See data/Actual_vs_Predictions.csv for 100 randomly sampled tickers with actual vs. predicted results.
 
 
-**Visual Gallery**
+## **Visual Gallery**
 
 ![ThresholdStocksRange](visualization/Threshold_range.png)
 
 ![Top10SentimentVolatileStocks](visualization/Top_10_sentiment_volatile_stocks.png)
 
-Creators: Harsh Shah, Ishanay Sharma, Saketh Bolina
+Creators: Harsh Shah, Ishanay Sharma, Saketh Bollina
