@@ -1,6 +1,10 @@
 import streamlit as st
-
-from pages import sentiment_analysis, fundamental_analysis, technical_analysis, final_verdict, compare_stocks, project_overview
+from pages import sentiment_analysis
+from pages import fundamental_analysis
+from pages import technical_analysis
+from pages import final_verdict
+from pages import compare_stocks
+from pages import project_overview
 
 st.set_page_config(page_title="Stock Verdict Intelligence", layout="wide")
 
