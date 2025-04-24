@@ -4,7 +4,6 @@ from pages import fundamental_analysis
 from pages import technical_analysis
 from pages import final_verdict
 from pages import compare_stocks
-from pages import project_overview
 
 st.set_page_config(page_title="Stock Verdict Intelligence", layout="wide")
 
@@ -14,7 +13,6 @@ PAGES = {
     "📉 Technical Analysis": technical_analysis,
     "🧠 Final Verdict Engine": final_verdict,
     "📈 Compare Stocks": compare_stocks,
-    "📂 Project Overview": project_overview,
 }
 
 st.sidebar.title("Navigation")
