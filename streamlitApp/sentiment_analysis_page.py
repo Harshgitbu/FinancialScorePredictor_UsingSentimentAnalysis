@@ -7,8 +7,8 @@ def run():
     st.title("📈 Sentiment Analysis")
 
     # Load data
-    tickers = pd.read_csv("data/yfinance_filtered_tickers.txt", header=None)[0].tolist()
-    sentiment_data = pd.read_csv("data/ModelDataFile.csv")
+    tickers = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/yfinance_filtered_tickers.txt", header=None)[0].tolist()
+    sentiment_data = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/ModelDataFile.csv")
 
     # Ticker selector
     selected_ticker = st.selectbox("Select a Ticker:", tickers)
@@ -16,8 +16,16 @@ def run():
     # Live chart
     st.subheader(f"Live Stock Price: {selected_ticker}")
     data = yf.download(selected_ticker, period="6mo")
-    st.line_chart(data["Adj Close"])
+    ticker_obj = yf.Ticker(selected_ticker)
+    data = ticker_obj.history(period="6mo")
 
+    st.write("Live data columns:", data.columns.tolist())
+
+    if data.empty:
+        st.error("No data available for this ticker.")
+    else:
+        st.line_chart(data["Close"])
+    # st.write("Live data columns:", data.columns.tolist())
     # Filter sentiment data
     filtered = sentiment_data[sentiment_data["ticker"] == selected_ticker]
 

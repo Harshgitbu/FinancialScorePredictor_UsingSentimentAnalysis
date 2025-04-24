@@ -19,7 +19,7 @@ def run():
     st.header("📁 Methodology Files from GitHub")
     st.markdown("View the core notebooks and code used in building this application:")
 
-    gh_base = "https://github.com/yourusername/yourproject/blob/main/"
+    gh_base = "https://github.com/Harshgitbu/FinancialScorePredictor_UsingSentimentAnalysis.git/main"
     files = {
         "Sentiment Scoring Notebook": "SentimentScoreModel.ipynb",
         "Merging Sentiment & Rolling Averages": "mergeSentiment.ipynb",

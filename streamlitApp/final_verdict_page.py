@@ -6,8 +6,8 @@ def run():
     st.title("🧠 Final Verdict Engine")
 
     # Load data
-    combined_df = pd.read_csv("data/combined_verdict_with_fundamentals.csv")
-    tech_df = pd.read_csv("data/technical_indicators_wrds_output.csv")
+    combined_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/combined_verdict_with_fundamentals.csv")
+    tech_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/technical_indicators_wrds_output.csv")
 
     tickers = combined_df["ticker"].unique()
     selected_ticker = st.selectbox("Select a Ticker:", tickers)

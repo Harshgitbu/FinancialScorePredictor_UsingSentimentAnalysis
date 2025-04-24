@@ -6,7 +6,7 @@ def run():
     st.title("📊 Fundamental Analysis")
 
     # Load data
-    fundamentals = pd.read_csv("data/fundamental_scores_wrds.csv")
+    fundamentals = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/fundamental_scores_wrds.csv")
     tickers = fundamentals["tic"].unique()
 
     # Ticker selector
@@ -43,9 +43,5 @@ def run():
     st.metric("Final Fundamental Score", f"{final_score:.2f}")
 
     st.markdown("### Raw Financial Ratios")
-    st.dataframe(latest[[
-        "pe_ratio", "pb_ratio", "ev_to_ebitda",
-        "roce", "net_profit_margin",
-        "asset_turnover", "inventory_turnover", "accruals",
-        "debt_to_equity", "interest_coverage"
-    ]].T.rename(columns={latest.name: "Value"}))
+    cols = ["tic","datadate","score_pe","score_pb","score_ev_ebitda","score_roce","score_margin","score_turnover","score_inventory","score_accruals","score_dte","score_cov"]
+    st.dataframe(pd.DataFrame(latest[cols]).rename(columns={latest.name: "Value"}))
