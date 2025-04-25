@@ -4,8 +4,8 @@ import yfinance as yf
 import plotly.graph_objects as go
 import ast
 
-tweets_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/TwitterDataSentimentScore.csv/TwitterDataSentimentScore.csv", parse_dates=["date"])
-news_df   = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/NewsDataSentimentScore.csv/NewsDataSentimentScore.csv",   parse_dates=["date"])
+tweets_df = pd.read_csv("data/TwitterDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
+news_df = pd.read_csv("data/NewsDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
 
 # Helper to get top-N tweets
 def get_top_tweets(ticker, n=3):
@@ -24,11 +24,11 @@ def run():
     st.title("📈 Sentiment Analysis")
 
     # Load data
-    tickers = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/yfinance_filtered_tickers.txt", header=None)[0].tolist()
-    sentiment_data = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/ModelDataFile.csv")
+    tickers = pd.read_csv("data/yfinance_filtered_tickers.txt", header=None)[0].tolist()
+    sentiment_data = pd.read_csv("data/ModelDataFile.csv")
 
     # Ticker selector
-    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    txt = open("data/company_name_ticker.txt").read().strip()
     # # Ticker selector
     # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
