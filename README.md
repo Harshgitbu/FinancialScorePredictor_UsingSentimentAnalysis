@@ -69,3 +69,6 @@ See data/Actual_vs_Predictions.csv for 100 randomly sampled tickers with actual 
 ![Top10SentimentVolatileStocks](visualization/Top_10_sentiment_volatile_stocks.png)
 
 Creators: Harsh Shah, Ishanay Sharma, Saketh Bollina
+
+---
+_Last updated: 04-24-2025_
