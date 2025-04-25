@@ -4,6 +4,7 @@ import yfinance as yf
 import plotly.graph_objects as go
 import ast
 import joblib
+from sklearn.preprocessing import LabelEncoder
 
 tweets_df = pd.read_csv("data/TwitterDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
 news_df = pd.read_csv("data/NewsDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
@@ -138,38 +139,43 @@ def run():
     #     st.markdown("---")
 
     # Predict Action
-    st.markdown("---")
+
+    # Load model and encoder (cached if needed)
+    model = joblib.load("models/final_xgb_model.pkl")
+    le = joblib.load("models/label_encoder.pkl")
+    
+    # User input for headline
     st.subheader("🧠 Predict Action Based on Custom Headline")
     user_input = st.text_input("Enter a recent headline or tweet about this stock:", placeholder="e.g. Strong Q2 earnings, great future outlook!")
-
+    
     if user_input:
-        score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
-
-        filtered = filtered.sort_values("date")
-        filtered['ret3'] = filtered.groupby("ticker")['daily_return'].rolling(3, min_periods=1).sum().reset_index(0, drop=True)
-        filtered['vol7'] = filtered.groupby("ticker")['daily_return'].rolling(7, min_periods=1).std().reset_index(0, drop=True).fillna(0)
-        filtered['vma7'] = filtered.groupby("ticker")['volume'].rolling(7, min_periods=1).mean().reset_index(0, drop=True)
-        filtered['bidask_spread'] = filtered['high_ask'] - filtered['low_bid']
+        # Simulate sentiment score
+        score = 0.95 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.95
         
-        row = filtered.sort_values("date").iloc[-1]
-
+        # Pull latest row
+        row = filtered.sort_values("date").iloc[-1].copy()
+        
+        # Recompute engineered features
+        row['news_score'] = score
+        row['final_sentiment_score'] = 0.65 * row['news_score'] + 0.35 * row['twitter_score']
+        row['bidask_spread'] = row['high_ask'] - row['low_bid']
+        row['ret3'] = row['daily_return']  # You could simulate some 3-day return here
+        row['vol7'] = 0.02                 # Placeholder if unavailable
+        row['vma7'] = row['volume']        # Approximate with current volume
+        
+        # Build DataFrame
         model_features = [
             'price','volume','low_bid','high_ask','sp500_return',
             'news_score','twitter_score','final_sentiment_score',
             'sentiment_1d','sentiment_3d_avg','sentiment_7d_avg',
             'ret3','vol7','vma7','bidask_spread'
         ]
-
-        input_data = row[model_features].copy()
-        input_data['news_score'] = score
-        input_data['final_sentiment_score'] = 0.65 * score + 0.35 * row['twitter_score']
-        input_df = pd.DataFrame([input_data])
-
-        model = joblib.load("models/final_xgb_model.pkl")
-        le = joblib.load("models/label_encoder.pkl")
+        input_df = pd.DataFrame([row[model_features]])
+        
+        # Predict
         pred_action = le.inverse_transform(model.predict(input_df))[0]
-
         st.success(f"📢 Model Prediction: {pred_action} for {selected_ticker}")
+
 
     # Top tweets and headlines
     # st.subheader("Top Contributing Tweets and News")
