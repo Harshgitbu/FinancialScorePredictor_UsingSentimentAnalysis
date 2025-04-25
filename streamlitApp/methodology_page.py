@@ -18,15 +18,7 @@ def run():
 
     st.header("📁 Methodology Files from GitHub")
     st.markdown("View the core notebooks and code used in building this application:")
-
-    gh_base = "https://github.com/Harshgitbu/FinancialScorePredictor_UsingSentimentAnalysis.git/main"
-    files = {
-            https://github.com/Harshgitbu/FinancialScorePredictor_UsingSentimentAnalysis
-    }
-
-    for title, file in files.items():
-        url = gh_base + file
-        st.markdown(f"- [{title}]({url})")
+    st.markdown("https://github.com/Harshgitbu/FinancialScorePredictor_UsingSentimentAnalysis")
 
     st.header("📜 Summary & Next Steps")
     st.markdown("""
