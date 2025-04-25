@@ -165,8 +165,8 @@ def run():
         input_data['final_sentiment_score'] = 0.65 * score + 0.35 * row['twitter_score']
         input_df = pd.DataFrame([input_data])
 
-        model = load("models/final_xgb_model.pkl")
-        le = load("models/label_encoder.pkl")
+        model = joblib.load("models/final_xgb_model.pkl")
+        le = joblib.load("models/label_encoder.pkl")
         pred_action = le.inverse_transform(model.predict(input_df))[0]
 
         st.success(f"📢 Model Prediction: {pred_action} for {selected_ticker}")
