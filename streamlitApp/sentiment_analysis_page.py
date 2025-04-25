@@ -143,6 +143,13 @@ def run():
 
     if user_input:
         score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
+
+        filtered = filtered.sort_values("date")
+        filtered['ret3'] = filtered.groupby("ticker")['daily_return'].rolling(3, min_periods=1).sum().reset_index(0, drop=True)
+        filtered['vol7'] = filtered.groupby("ticker")['daily_return'].rolling(7, min_periods=1).std().reset_index(0, drop=True).fillna(0)
+        filtered['vma7'] = filtered.groupby("ticker")['volume'].rolling(7, min_periods=1).mean().reset_index(0, drop=True)
+        filtered['bidask_spread'] = filtered['high_ask'] - filtered['low_bid']
+        
         row = filtered.sort_values("date").iloc[-1]
 
         model_features = [
