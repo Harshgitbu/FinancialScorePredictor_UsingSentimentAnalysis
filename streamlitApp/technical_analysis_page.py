@@ -8,10 +8,10 @@ def run():
     st.title("📉 Technical Analysis")
 
     # Load technical indicator data
-    tech_df = pd.read_csv("/data/technical_indicators_wrds_output.csv")
+    tech_df = pd.read_csv("data/technical_indicators_wrds_output.csv")
     tickers = tech_df["TICKER"].unique()
 
-    txt = open("/data/company_name_ticker.txt").read().strip()
+    txt = open("data/company_name_ticker.txt").read().strip()
     # # Ticker selector
     # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
