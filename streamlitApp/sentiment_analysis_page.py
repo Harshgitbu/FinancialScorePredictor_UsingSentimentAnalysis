@@ -3,9 +3,11 @@ import pandas as pd
 import yfinance as yf
 import plotly.graph_objects as go
 import ast
+import joblib
+from sklearn.preprocessing import LabelEncoder
 
-tweets_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/TwitterDataSentimentScore.csv/TwitterDataSentimentScore.csv", parse_dates=["date"])
-news_df   = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/NewsDataSentimentScore.csv/NewsDataSentimentScore.csv",   parse_dates=["date"])
+tweets_df = pd.read_csv("data/TwitterDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
+news_df = pd.read_csv("data/NewsDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
 
 # Helper to get top-N tweets
 def get_top_tweets(ticker, n=3):
@@ -25,11 +27,11 @@ def run():
     st.write("The model scrapes and process headlines, social-media chatter and analyst snippets to quantify optimism, fear and uncertainty. It returns a mood gauge (–1 to +1) and highlights recent spikes in positive or negative buzz. It’s a proof-point of how natural-language signals can steer investment judgments.")
 
     # Load data
-    tickers = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/yfinance_filtered_tickers.txt", header=None)[0].tolist()
-    sentiment_data = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/ModelDataFile.csv")
+    tickers = pd.read_csv("data/yfinance_filtered_tickers.txt", header=None)[0].tolist()
+    sentiment_data = pd.read_csv("data/ModelDataFile.csv")
 
     # Ticker selector
-    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    txt = open("data/company_name_ticker.txt").read().strip()
     # # Ticker selector
     mapping = ast.literal_eval("{" + txt + "}")
 
@@ -115,7 +117,110 @@ def run():
     c1.metric("Final Sentiment", f"{latest['final_sentiment_score']:.2f}")
     c2.metric("3-Day Avg",        f"{latest['sentiment_3d_avg']:.2f}")
     c3.metric("7-Day Avg",        f"{latest['sentiment_7d_avg']:.2f}")
+
+    # last_n = 5
+    # recent = filtered.sort_values("date").tail(last_n)
+
+    # for _, row in recent.iterrows():
+    #     fs  = row["final_sentiment_score"]
+    #     s1  = row["sentiment_1d"]
+    #     s3  = row["sentiment_3d_avg"]
+    #     s7  = row["sentiment_7d_avg"]
+
+    #     c1, c2, c3 = st.columns(3, gap="small")
+    #     c1.metric("Final Sentiment",  f"{fs:.2f}")
+    #     c2.metric("3-Day Avg",        f"{s3:.2f}")
+    #     c3.metric("7-Day Avg",        f"{s7:.2f}")
+    #     st.markdown("---")
+
+    # ------------------ Load Assets ------------------
+    @st.cache_resource
+    def load_model():
+        return joblib.load("models/final_xgb_model.pkl")
     
+    @st.cache_resource
+    def load_encoder():
+        return joblib.load("models/label_encoder.pkl")
+    
+    @st.cache_data
+    def load_data():
+        df = pd.read_csv("data/ModelDataFile.csv")
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+        # Add missing engineered features if not present
+        if 'ret3' not in df.columns:
+            df['ret3'] = (df.groupby('ticker')['daily_return']
+                            .rolling(3, min_periods=1).sum()
+                            .reset_index(0, drop=True))
+        if 'vol7' not in df.columns:
+            df['vol7'] = (df.groupby('ticker')['daily_return']
+                            .rolling(7, min_periods=1).std()
+                            .reset_index(0, drop=True)).fillna(0)
+        if 'vma7' not in df.columns:
+            df['vma7'] = (df.groupby('ticker')['volume']
+                            .rolling(7, min_periods=1).mean()
+                            .reset_index(0, drop=True))
+        if 'bidask_spread' not in df.columns:
+            df['bidask_spread'] = df['high_ask'] - df['low_bid']
+    
+        return df
+    
+    
+    # Load models and data
+    model = load_model()
+    le = load_encoder()
+    data = load_data()
+
+    # Mock sentiment pipelines (Fast load without transformers)
+    twitter_sentiment = lambda x: {"label": "Neutral", "score": 0.5}
+    news_sentiment = lambda x: {"label": "Neutral", "score": 0.5}
+
+    # Predict Action
+    
+    st.header("🔮 Make a Prediction")
+    
+    # Use existing selected_ticker from the top of the app
+    user_input = st.text_input(
+        f"Enter a recent headline/tweet about **{selected_ticker}**:",
+        "Strong Q2 earnings, great future outlook!"
+    )
+
+    if st.button("Predict Action"):
+        score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
+
+        row = data[data['ticker'] == selected_ticker].sort_values("date").iloc[-1]
+
+        features = [
+            'price','volume','low_bid','high_ask','sp500_return',
+            'news_score','twitter_score','final_sentiment_score',
+            'sentiment_1d','sentiment_3d_avg','sentiment_7d_avg',
+            'ret3','vol7','vma7','bidask_spread'
+        ]
+
+        input_data = row[features].copy()
+        input_data['news_score'] = score
+        input_data['final_sentiment_score'] = 0.65 * score + 0.35 * row['twitter_score']
+        input_df = pd.DataFrame([input_data])
+
+        prediction = le.inverse_transform(model.predict(input_df))[0]
+
+        st.success(f"📢 Model Prediction for {selected_ticker}: **{prediction}**")
+
+
+    # Top tweets and headlines
+    # st.subheader("Top Contributing Tweets and News")
+    # if "description" in filtered.columns:
+    #     st.markdown("**Top 3 Tweets:**")
+    #     top_tweets = filtered.sort_values("final_sentiment_score", ascending=False)["description"].head(3)
+    #     for tweet in top_tweets:
+    #         st.info(tweet)
+
+    # if "embed_title" in filtered.columns:
+    #     st.markdown("**Top 3 News Headlines:**")
+    #     top_news = filtered.sort_values("final_sentiment_score", ascending=False)["embed_title"].head(3)
+    #     for headline in top_news:
+    #         st.success(headline)
+
     st.subheader("Top 3 Tweets by Sentiment")
     top_t = get_top_tweets(selected_ticker, 3)
     for _, row in top_t.iterrows():

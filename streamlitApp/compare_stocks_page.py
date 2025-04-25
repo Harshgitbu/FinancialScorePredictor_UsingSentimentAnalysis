@@ -7,8 +7,8 @@ def run():
     st.title("📈 Compare Stocks")
 
     # Load data
-    verdicts = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/combined_verdict_with_fundamentals.csv")
-    tech = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/technical_indicators_wrds_output.csv")
+    verdicts = pd.read_csv("data/combined_verdict_with_fundamentals.csv")
+    tech = pd.read_csv("data/technical_indicators_wrds_output.csv")
 
     tickers = verdicts["ticker"].unique()
     selected = st.multiselect("Select up to 5 tickers to compare:", tickers, default=tickers[:2])

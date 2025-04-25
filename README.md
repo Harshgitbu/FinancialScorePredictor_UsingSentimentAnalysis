@@ -71,4 +71,4 @@ See data/Actual_vs_Predictions.csv for 100 randomly sampled tickers with actual 
 Creators: Harsh Shah, Ishanay Sharma, Saketh Bollina
 
 ---
-_Last updated: 04-24-2025_
+_Last updated: 04-25-2025_

@@ -9,10 +9,10 @@ def run():
     st.write("This analysis captures the trend and volatility by leveraging rolling averages of (20/50/200 days), Bollinger Bands and an annualized Sharpe Ratio. The model is able to flag golden crosses” “squeezes”, showing how simple price-based signals can feed into a systematic model.")
 
     # Load technical indicator data
-    tech_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/technical_indicators_wrds_output.csv")
+    tech_df = pd.read_csv("data/technical_indicators_wrds_output.csv")
     tickers = tech_df["TICKER"].unique()
 
-    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    txt = open("data/company_name_ticker.txt").read().strip()
     # # Ticker selector
     mapping = ast.literal_eval("{" + txt + "}")
 

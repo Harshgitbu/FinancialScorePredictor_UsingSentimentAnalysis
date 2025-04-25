@@ -8,9 +8,9 @@ def run():
     st.write("Key ratios are calculated and benchmarked against industry averages across four dimensions. Valuation uses P/E and EV/EBITDA; profitability relies on ROCE and Net Margin; efficiency is measured by accruals-to-assets, asset turnover, inventory turnover, and cash-conversion cycle; and solvency is assessed via debt-to-equity and interest-coverage. You assign custom weights to each dimension to generate a single Fundamental Score that reflects the company’s financial health.")
 
     # Load data
-    fundamentals = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/fundamental_scores_wrds.csv")
+    fundamentals = pd.read_csv("data/fundamental_scores_wrds.csv")
     tickers = fundamentals["tic"].unique()
-    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    txt = open("data/company_name_ticker.txt").read().strip()
     # # Ticker selector
     mapping = ast.literal_eval("{" + txt + "}")
 
