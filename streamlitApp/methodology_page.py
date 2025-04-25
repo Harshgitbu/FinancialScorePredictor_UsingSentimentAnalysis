@@ -21,10 +21,7 @@ def run():
 
     gh_base = "https://github.com/Harshgitbu/FinancialScorePredictor_UsingSentimentAnalysis.git/main"
     files = {
-        "Sentiment Scoring Notebook": "SentimentScoreModel.ipynb",
-        "Merging Sentiment & Rolling Averages": "mergeSentiment.ipynb",
-        "Baseline Model": "BaselineStockScorePredictionModel.ipynb",
-        "Final Model with Fusion": "FinalModel.ipynb"
+            https://github.com/Harshgitbu/FinancialScorePredictor_UsingSentimentAnalysis
     }
 
     for title, file in files.items():
