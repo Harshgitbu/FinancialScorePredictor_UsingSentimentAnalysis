@@ -6,6 +6,7 @@ import numpy as np
 
 def run():
     st.title("📉 Technical Analysis")
+    st.write("This analysis captures the trend and volatility by leveraging rolling averages of (20/50/200 days), Bollinger Bands and an annualized Sharpe Ratio. The model is able to flag golden crosses” “squeezes”, showing how simple price-based signals can feed into a systematic model.")
 
     # Load technical indicator data
     tech_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/technical_indicators_wrds_output.csv")
@@ -13,7 +14,6 @@ def run():
 
     txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
     # # Ticker selector
-    # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
 
     # 2) Prepare list of tickers
@@ -33,7 +33,7 @@ def run():
     latest = selected.sort_values("date").iloc[-1]
 
     st.metric("Sharpe Ratio", f"{latest['sharpe_ratio']:.2f}")
-    st.markdown(f"**MA Signal**: {latest['ma_signal']}")
+    st.markdown(f"**Moving Average Signal**: {latest['ma_signal']}")
     st.markdown(f"**Bollinger Band Signal**: {latest['bb_signal']}")
 
     # Moving Averages Visual

@@ -5,13 +5,13 @@ import ast
 
 def run():
     st.title("📊 Fundamental Analysis")
+    st.write("Key ratios are calculated and benchmarked against industry averages across four dimensions. Valuation uses P/E and EV/EBITDA; profitability relies on ROCE and Net Margin; efficiency is measured by accruals-to-assets, asset turnover, inventory turnover, and cash-conversion cycle; and solvency is assessed via debt-to-equity and interest-coverage. You assign custom weights to each dimension to generate a single Fundamental Score that reflects the company’s financial health.")
 
     # Load data
     fundamentals = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/fundamental_scores_wrds.csv")
     tickers = fundamentals["tic"].unique()
     txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
     # # Ticker selector
-    # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
 
     # 2) Prepare list of tickers
@@ -57,10 +57,14 @@ def run():
     )
 
     st.metric("Final Fundamental Score", f"{final_score:.2f}")
+    # Provide interpretation
+    if final_score >= 0.6:
+        st.success("This company has *strong fundamentals* — it ranks highly across valuation, profitability, efficiency, and debt ratios.")
+    elif 0.4 <= final_score < 0.6:
+        st.info("This company has *average fundamentals* — it performs reasonably across key metrics but may not be outstanding in any one area.")
+    else:
+        st.warning("This company has *weak fundamentals* — it may be overvalued, less efficient, or carry financial risk. Review individual metrics for details.")
 
-    st.markdown("### Raw Financial Ratios")
-    # cols = ["tic","datadate","score_pe","score_pb","score_ev_ebitda","score_roce","score_margin","score_turnover","score_inventory","score_accruals","score_dte","score_cov"]
-    # st.dataframe(pd.DataFrame(latest[cols]).rename(columns={latest.name: "Value"}))
     cols = [
     "score_pe","score_pb","score_ev_ebitda",
     "score_roce","score_margin",

@@ -4,7 +4,7 @@ import ast
 
 def run():
     st.title("🧠 Final Verdict Engine")
-
+    st.write("Personalize the analysis by sliding the Sentiment, Fundamentals, and Technical controls to see your Composite Score (0–10) and a Buy / Hold / Sell recommendation instantly. Right below, view each pillar’s sub-score alongside its chosen weight, so you can clearly follow how your custom blend of market mood, financial health, and price-action insights produces the final verdict.")
     # Load data
     combined_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/combined_verdict_with_fundamentals.csv")
     tech_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/technical_indicators_wrds_output.csv")
@@ -12,7 +12,6 @@ def run():
     tickers = combined_df["ticker"].unique()
     txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
     # # Ticker selector
-    # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
 
     # 2) Prepare list of tickers

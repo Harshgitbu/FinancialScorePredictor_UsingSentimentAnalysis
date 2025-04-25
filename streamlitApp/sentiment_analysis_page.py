@@ -22,6 +22,7 @@ def get_top_news(ticker, n=3):
 
 def run():
     st.title("📈 Sentiment Analysis")
+    st.write("The model scrapes and process headlines, social-media chatter and analyst snippets to quantify optimism, fear and uncertainty. It returns a mood gauge (–1 to +1) and highlights recent spikes in positive or negative buzz. It’s a proof-point of how natural-language signals can steer investment judgments.")
 
     # Load data
     tickers = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/yfinance_filtered_tickers.txt", header=None)[0].tolist()
@@ -30,7 +31,6 @@ def run():
     # Ticker selector
     txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
     # # Ticker selector
-    # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
 
     # 2) Prepare list of tickers
@@ -107,12 +107,6 @@ def run():
 
     # Filter sentiment data
     filtered = sentiment_data[sentiment_data["ticker"] == selected_ticker]
-
-    # Score summary
-    # st.subheader("Sentiment Score Summary")
-    # st.dataframe(
-    #     filtered[["date", "final_sentiment_score", "sentiment_1d", "sentiment_3d_avg", "sentiment_7d_avg"]].tail(10)
-    # )
     st.subheader("Sentiment Score Summary")
     latest = filtered.sort_values("date").iloc[-1]
 
@@ -121,34 +115,7 @@ def run():
     c1.metric("Final Sentiment", f"{latest['final_sentiment_score']:.2f}")
     c2.metric("3-Day Avg",        f"{latest['sentiment_3d_avg']:.2f}")
     c3.metric("7-Day Avg",        f"{latest['sentiment_7d_avg']:.2f}")
-    # last_n = 5
-    # recent = filtered.sort_values("date").tail(last_n)
-
-    # for _, row in recent.iterrows():
-    #     fs  = row["final_sentiment_score"]
-    #     s1  = row["sentiment_1d"]
-    #     s3  = row["sentiment_3d_avg"]
-    #     s7  = row["sentiment_7d_avg"]
-
-    #     c1, c2, c3 = st.columns(3, gap="small")
-    #     c1.metric("Final Sentiment",  f"{fs:.2f}")
-    #     c2.metric("3-Day Avg",        f"{s3:.2f}")
-    #     c3.metric("7-Day Avg",        f"{s7:.2f}")
-    #     st.markdown("---")
-
-    # Top tweets and headlines
-    # st.subheader("Top Contributing Tweets and News")
-    # if "description" in filtered.columns:
-    #     st.markdown("**Top 3 Tweets:**")
-    #     top_tweets = filtered.sort_values("final_sentiment_score", ascending=False)["description"].head(3)
-    #     for tweet in top_tweets:
-    #         st.info(tweet)
-
-    # if "embed_title" in filtered.columns:
-    #     st.markdown("**Top 3 News Headlines:**")
-    #     top_news = filtered.sort_values("final_sentiment_score", ascending=False)["embed_title"].head(3)
-    #     for headline in top_news:
-    #         st.success(headline)
+    
     st.subheader("Top 3 Tweets by Sentiment")
     top_t = get_top_tweets(selected_ticker, 3)
     for _, row in top_t.iterrows():
