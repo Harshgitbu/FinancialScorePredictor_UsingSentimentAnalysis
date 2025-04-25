@@ -211,10 +211,6 @@ def run():
 
         st.success(f"📢 Model Prediction for {selected_ticker}: **{prediction}**")
 
-        st.subheader(f"📊 Last 30 Days for {selected_ticker}")
-        hist = data[data['ticker'] == selected_ticker].sort_values("date")[-30:]
-        st.line_chart(hist.set_index("date")["price"])
-
 
     # Top tweets and headlines
     # st.subheader("Top Contributing Tweets and News")
