@@ -23,7 +23,7 @@ def run():
     #### 🚀 How to Get Started
     - Select a module from the sidebar 📂
     - Adjust sliders for weights and thresholds
-    - Discover top opportunities with AI-driven insights!
+    - Discover top opportunities with ML-driven insights!
 
     ---
     #### 💡 Tip:
