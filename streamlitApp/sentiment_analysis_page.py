@@ -189,7 +189,7 @@ def run():
     if st.button("Predict Action"):
         score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
 
-        row = data[data['ticker'] == selected].sort_values("date").iloc[-1]
+        row = data[data['tickers'] == selected].sort_values("date").iloc[-1]
 
         features = [
             'price','volume','low_bid','high_ask','sp500_return',
