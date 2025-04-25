@@ -10,7 +10,7 @@ def run():
     tech_df = pd.read_csv("data/technical_indicators_wrds_output.csv")
 
     tickers = combined_df["ticker"].unique()
-    txt = open("/data/company_name_ticker.txt").read().strip()
+    txt = open("data/company_name_ticker.txt").read().strip()
     # # Ticker selector
     # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
