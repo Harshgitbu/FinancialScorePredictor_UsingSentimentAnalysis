@@ -182,14 +182,18 @@ def run():
 
     # Predict Action
     
-    # User input for headline
     st.header("🔮 Make a Prediction")
-    user_input = st.text_input("Enter a recent headline/tweet:", "Strong Q2 earnings, great future outlook!")
+    
+    # Use existing selected_ticker from the top of the app
+    user_input = st.text_input(
+        f"Enter a recent headline/tweet about **{selected_ticker}**:",
+        "Strong Q2 earnings, great future outlook!"
+    )
 
     if st.button("Predict Action"):
         score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
 
-        row = data[data['tickers'] == selected].sort_values("date").iloc[-1]
+        row = data[data['ticker'] == selected_ticker].sort_values("date").iloc[-1]
 
         features = [
             'price','volume','low_bid','high_ask','sp500_return',
@@ -205,7 +209,11 @@ def run():
 
         prediction = le.inverse_transform(model.predict(input_df))[0]
 
-        st.success(f"📢 Model Prediction for {selected}: **{prediction}**")
+        st.success(f"📢 Model Prediction for {selected_ticker}: **{prediction}**")
+
+        st.subheader(f"📊 Last 30 Days for {selected_ticker}")
+        hist = data[data['ticker'] == selected_ticker].sort_values("date")[-30:]
+        st.line_chart(hist.set_index("date")["price"])
 
 
     # Top tweets and headlines
