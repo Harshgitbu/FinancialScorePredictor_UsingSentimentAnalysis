@@ -22,3 +22,7 @@ PAGES = {
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", list(PAGES.keys()))
 PAGES[page].run()
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("📲 **Scan to Explore App**")
+st.sidebar.image("data/qr_code.png", width=160, caption="Access on your phone")
