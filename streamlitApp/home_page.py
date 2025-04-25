@@ -3,7 +3,7 @@ from PIL import Image
 import time
 
 def run():
-    logo = Image.open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/app_logo.png")
+    logo = Image.open("data/app_logo.png")
     st.image(logo, width=150)
     st.info("Built by Ishanay Sharma, Harsh Shah and Saketh Bollina")
     st.title("🏠 StockSense")
