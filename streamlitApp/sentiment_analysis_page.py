@@ -181,9 +181,6 @@ def run():
     news_sentiment = lambda x: {"label": "Neutral", "score": 0.5}
 
     # Predict Action
-    # Load model and encoder (cached if needed)
-    model = load_model("models/final_xgb_model.pkl")
-    le = load_encoder("models/label_encoder.pkl")
     
     # User input for headline
     st.header("🔮 Make a Prediction")
