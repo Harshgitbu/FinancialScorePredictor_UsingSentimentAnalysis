@@ -7,7 +7,7 @@ def run():
 
     # Load data
     combined_df = pd.read_csv("data/combined_verdict_with_fundamentals.csv")
-    tech_df = pd.read_csv("/data/technical_indicators_wrds_output.csv")
+    tech_df = pd.read_csv("data/technical_indicators_wrds_output.csv")
 
     tickers = combined_df["ticker"].unique()
     txt = open("/data/company_name_ticker.txt").read().strip()
