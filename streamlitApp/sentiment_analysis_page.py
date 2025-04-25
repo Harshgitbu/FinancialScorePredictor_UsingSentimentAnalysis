@@ -3,6 +3,7 @@ import pandas as pd
 import yfinance as yf
 import plotly.graph_objects as go
 import ast
+import joblib
 
 tweets_df = pd.read_csv("data/TwitterDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
 news_df = pd.read_csv("data/NewsDataSentimentScore.csv.zip", compression='zip', parse_dates=["date"])
