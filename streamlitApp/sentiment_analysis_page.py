@@ -184,8 +184,6 @@ def run():
     
     # User input for headline
     st.header("🔮 Make a Prediction")
-    tickers = sorted(data['ticker'].unique())
-    selected = st.selectbox("Choose a Stock", tickers)
     user_input = st.text_input("Enter a recent headline/tweet:", "Strong Q2 earnings, great future outlook!")
 
     if st.button("Predict Action"):
@@ -208,10 +206,6 @@ def run():
         prediction = le.inverse_transform(model.predict(input_df))[0]
 
         st.success(f"📢 Model Prediction for {selected}: **{prediction}**")
-
-        st.subheader(f"📊 Last 30 Days: {selected}")
-        hist = data[data['ticker'] == selected].sort_values("date")[-30:]
-        st.line_chart(hist.set_index("date")["price"])
 
 
     # Top tweets and headlines
