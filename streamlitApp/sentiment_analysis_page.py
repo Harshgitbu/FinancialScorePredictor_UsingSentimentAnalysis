@@ -138,43 +138,83 @@ def run():
     #     c3.metric("7-Day Avg",        f"{s7:.2f}")
     #     st.markdown("---")
 
-    # Predict Action
+    # ------------------ Load Assets ------------------
+    @st.cache_resource
+    def load_model():
+        return joblib.load("models/final_xgb_model.pkl")
+    
+    @st.cache_resource
+    def load_encoder():
+        return joblib.load("models/label_encoder.pkl")
+    
+    @st.cache_data
+    def load_data():
+        df = pd.read_csv("data/ModelDataFile.csv")
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+        # Add missing engineered features if not present
+        if 'ret3' not in df.columns:
+            df['ret3'] = (df.groupby('ticker')['daily_return']
+                            .rolling(3, min_periods=1).sum()
+                            .reset_index(0, drop=True))
+        if 'vol7' not in df.columns:
+            df['vol7'] = (df.groupby('ticker')['daily_return']
+                            .rolling(7, min_periods=1).std()
+                            .reset_index(0, drop=True)).fillna(0)
+        if 'vma7' not in df.columns:
+            df['vma7'] = (df.groupby('ticker')['volume']
+                            .rolling(7, min_periods=1).mean()
+                            .reset_index(0, drop=True))
+        if 'bidask_spread' not in df.columns:
+            df['bidask_spread'] = df['high_ask'] - df['low_bid']
+    
+        return df
+    
+    
+    # Load models and data
+    model = load_model()
+    le = load_encoder()
+    data = load_data()
 
+    # Mock sentiment pipelines (Fast load without transformers)
+    twitter_sentiment = lambda x: {"label": "Neutral", "score": 0.5}
+    news_sentiment = lambda x: {"label": "Neutral", "score": 0.5}
+
+    # Predict Action
     # Load model and encoder (cached if needed)
-    model = joblib.load("models/final_xgb_model.pkl")
-    le = joblib.load("models/label_encoder.pkl")
+    model = load("models/final_xgb_model.pkl")
+    le = load("models/label_encoder.pkl")
     
     # User input for headline
-    st.subheader("🧠 Predict Action Based on Custom Headline")
-    user_input = st.text_input("Enter a recent headline or tweet about this stock:", placeholder="e.g. Strong Q2 earnings, great future outlook!")
-    
-    if user_input:
-        # Simulate sentiment score
-        score = 0.95 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.95
-        
-        # Pull latest row
-        row = filtered.sort_values("date").iloc[-1].copy()
-        
-        # Recompute engineered features
-        row['news_score'] = score
-        row['final_sentiment_score'] = 0.65 * row['news_score'] + 0.35 * row['twitter_score']
-        row['bidask_spread'] = row['high_ask'] - row['low_bid']
-        row['ret3'] = row['daily_return']  # You could simulate some 3-day return here
-        row['vol7'] = 0.02                 # Placeholder if unavailable
-        row['vma7'] = row['volume']        # Approximate with current volume
-        
-        # Build DataFrame
-        model_features = [
+    st.header("🔮 Make a Prediction")
+    tickers = sorted(data['ticker'].unique())
+    selected = st.selectbox("Choose a Stock", tickers)
+    user_input = st.text_input("Enter a recent headline/tweet:", "Strong Q2 earnings, great future outlook!")
+
+    if st.button("Predict Action"):
+        score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
+
+        row = data[data['ticker'] == selected].sort_values("date").iloc[-1]
+
+        features = [
             'price','volume','low_bid','high_ask','sp500_return',
             'news_score','twitter_score','final_sentiment_score',
             'sentiment_1d','sentiment_3d_avg','sentiment_7d_avg',
             'ret3','vol7','vma7','bidask_spread'
         ]
-        input_df = pd.DataFrame([row[model_features]])
-        
-        # Predict
-        pred_action = le.inverse_transform(model.predict(input_df))[0]
-        st.success(f"📢 Model Prediction: {pred_action} for {selected_ticker}")
+
+        input_data = row[features].copy()
+        input_data['news_score'] = score
+        input_data['final_sentiment_score'] = 0.65 * score + 0.35 * row['twitter_score']
+        input_df = pd.DataFrame([input_data])
+
+        prediction = le.inverse_transform(model.predict(input_df))[0]
+
+        st.success(f"📢 Model Prediction for {selected}: **{prediction}**")
+
+        st.subheader(f"📊 Last 30 Days: {selected}")
+        hist = data[data['ticker'] == selected].sort_values("date")[-30:]
+        st.line_chart(hist.set_index("date")["price"])
 
 
     # Top tweets and headlines
