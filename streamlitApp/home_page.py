@@ -11,10 +11,10 @@ def run():
     Welcome to **StockSense** — your all-in-one platform for:
     
     📈 Real-time **Sentiment Analysis** from Twitter & News
-    📊 Deep **Fundamental Analysis** of company financials
-    📉 Smart **Technical Analysis** using Moving Averages, Bollinger Bands, and Sharpe Ratios
-    🧠 Combined **Final Verdict Engine** with customizable weights
-    📈 **Compare Stocks** across sentiment, fundamentals, and technicals
+    /n📊 Deep **Fundamental Analysis** of company financials
+    /n📉 Smart **Technical Analysis** using Moving Averages, Bollinger Bands, and Sharpe Ratios
+    /n🧠 Combined **Final Verdict Engine** with customizable weights
+    /n📈 **Compare Stocks** across sentiment, fundamentals, and technicals
     
     StockSense is a working prototype that combines three analytical lenses: market mood, accounting health and price behavior into a single, transparent score. 
     You won’t find price predictions here, instead you get a clear demonstration of how sentiment, fundamentals and technicals can be fused into a data-driven stock scoring engine which can be customized according to your investment mantra.
