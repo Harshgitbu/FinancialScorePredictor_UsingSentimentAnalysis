@@ -4,6 +4,9 @@ joblib
 scikit-learn
 xgboost
 imbalanced-learn
+yfinance
+requests
+plotly
 transformers
 streamlit
 matplotlib
