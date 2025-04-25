@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-
+import ast
 
 def run():
     st.title("🧠 Final Verdict Engine")
@@ -10,7 +10,23 @@ def run():
     tech_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/technical_indicators_wrds_output.csv")
 
     tickers = combined_df["ticker"].unique()
-    selected_ticker = st.selectbox("Select a Ticker:", tickers)
+    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    # # Ticker selector
+    # selected_ticker = st.selectbox("Select a Ticker:", tickers)
+    mapping = ast.literal_eval("{" + txt + "}")
+
+    # 2) Prepare list of tickers
+    tickers = list(mapping.keys())
+
+    # 3) Build the selectbox
+    selected_ticker = st.selectbox(
+        "Select a Company:",
+        tickers,
+        format_func=lambda t: f"{mapping[t]}\n({t})"
+    )
+
+    # 4) Use the selection
+    st.write("You picked:", mapping[selected_ticker], f"({selected_ticker})")
 
     sentiment_weight = st.slider("Sentiment Weight", 0.0, 1.0, 0.33)
     fundamental_weight = st.slider("Fundamental Weight", 0.0, 1.0, 0.33)
@@ -42,16 +58,16 @@ def run():
     st.metric("Final Weighted Score", f"{final_score:.2f}")
 
     # Final verdict logic
-    if final_score > 0.75:
-        verdict = "🔼 Strong Buy"
-    elif final_score > 0.6:
-        verdict = "🟢 Buy"
-    elif final_score < 0.4:
-        verdict = "🔻 Sell"
-    elif final_score < 0.25:
+    if final_score <= -0.026:
         verdict = "🔴 Strong Sell"
-    else:
+    elif final_score <=  0.075:
+        verdict = "🔻 Sell"
+    elif final_score <=  0.221:
         verdict = "🟡 Hold"
+    elif final_score <=  0.371:
+        verdict = "🟢 Buy"
+    else:
+        verdict = "🔼 Strong Buy"
 
     st.subheader("Final Verdict")
     st.success(verdict)

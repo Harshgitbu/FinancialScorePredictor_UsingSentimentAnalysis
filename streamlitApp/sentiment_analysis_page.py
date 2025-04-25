@@ -1,7 +1,24 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
+import plotly.graph_objects as go
+import ast
 
+tweets_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/TwitterDataSentimentScore.csv/TwitterDataSentimentScore.csv", parse_dates=["date"])
+news_df   = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/NewsDataSentimentScore.csv/NewsDataSentimentScore.csv",   parse_dates=["date"])
+
+# Helper to get top-N tweets
+def get_top_tweets(ticker, n=3):
+    df = tweets_df[tweets_df["ticker"] == ticker].dropna(subset=["clean_text", "sentiment_score"])
+    # sort by absolute contribution if you want largest magnitude, or by positive only:
+    top = df.nlargest(n, "sentiment_score")
+    return top[["date", "clean_text", "sentiment_score"]]
+
+# Helper to get top-N news
+def get_top_news(ticker, n=3):
+    df = news_df[news_df["ticker"] == ticker].dropna(subset=["description", "sentiment_score"])
+    top = df.nlargest(n, "sentiment_score")
+    return top[["date", "description", "sentiment_score"]]
 
 def run():
     st.title("📈 Sentiment Analysis")
@@ -11,40 +28,133 @@ def run():
     sentiment_data = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/ModelDataFile.csv")
 
     # Ticker selector
-    selected_ticker = st.selectbox("Select a Ticker:", tickers)
+    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    # # Ticker selector
+    # selected_ticker = st.selectbox("Select a Ticker:", tickers)
+    mapping = ast.literal_eval("{" + txt + "}")
+
+    # 2) Prepare list of tickers
+    tickers = list(mapping.keys())
+
+    # 3) Build the selectbox
+    selected_ticker = st.selectbox(
+        "Select a Company:",
+        tickers,
+        format_func=lambda t: f"{mapping[t]}\n({t})"
+    )
+
+    # 4) Use the selection
+    st.write("You picked:", mapping[selected_ticker], f"({selected_ticker})")
 
     # Live chart
-    st.subheader(f"Live Stock Price: {selected_ticker}")
-    data = yf.download(selected_ticker, period="6mo")
     ticker_obj = yf.Ticker(selected_ticker)
-    data = ticker_obj.history(period="6mo")
 
-    st.write("Live data columns:", data.columns.tolist())
+    # 1) Fetch 1-day intraday data at 1-minute granularity (includes pre/post-market)
+    df_intraday = ticker_obj.history(
+        period="1d",
+        interval="1m",
+        prepost=True
+    )
 
-    if data.empty:
-        st.error("No data available for this ticker.")
-    else:
-        st.line_chart(data["Close"])
-    # st.write("Live data columns:", data.columns.tolist())
+    # 2) Build a Plotly figure
+    fig = go.Figure()
+
+    # price line
+    fig.add_trace(go.Scatter(
+        x=df_intraday.index, 
+        y=df_intraday["Close"], 
+        mode="lines", 
+        name="Close"
+    ))
+
+    # optional: add a horizontal line at yesterday's close
+    prev_close = df_intraday["Close"].iloc[0]
+    fig.add_hline(
+        y=prev_close,
+        line_dash="dash",
+        line_color="gray",
+        annotation_text=f"Prev Close: {prev_close:.2f}",
+        annotation_position="bottom right"
+    )
+
+    # 3) Update layout to mimic Yahoo style
+    fig.update_layout(
+        title=f"{selected_ticker} Intraday — 1m Interval (Pre/Post)",
+        xaxis_title="Time",
+        yaxis_title="Price (USD)",
+        xaxis_rangeslider_visible=True,            # show range slider
+        xaxis_rangebreaks=[                         # hide overnight gaps
+            dict(bounds=["sat","mon"])
+        ],
+        template="plotly_dark",                     # dark theme
+        margin=dict(l=40, r=20, t=60, b=40)
+    )
+
+    # 4) Range selector buttons (1h, 3h, 6h, all)
+    fig.update_xaxes(
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1h", step="hour", stepmode="backward"),
+                dict(count=3, label="3h", step="hour", stepmode="backward"),
+                dict(count=6, label="6h", step="hour", stepmode="backward"),
+                dict(step="all")
+            ])
+        )
+    )
+
+    # 5) Render in Streamlit
+    st.plotly_chart(fig, use_container_width=True, height=450)
+
     # Filter sentiment data
     filtered = sentiment_data[sentiment_data["ticker"] == selected_ticker]
 
     # Score summary
+    # st.subheader("Sentiment Score Summary")
+    # st.dataframe(
+    #     filtered[["date", "final_sentiment_score", "sentiment_1d", "sentiment_3d_avg", "sentiment_7d_avg"]].tail(10)
+    # )
     st.subheader("Sentiment Score Summary")
-    st.dataframe(
-        filtered[["date", "final_sentiment_score", "sentiment_1d", "sentiment_3d_avg", "sentiment_7d_avg"]].tail(10)
-    )
+    latest = filtered.sort_values("date").iloc[-1]
+
+    # 2) Create three side-by-side metrics
+    c1, c2, c3 = st.columns(3, gap="large")
+    c1.metric("Final Sentiment", f"{latest['final_sentiment_score']:.2f}")
+    c2.metric("3-Day Avg",        f"{latest['sentiment_3d_avg']:.2f}")
+    c3.metric("7-Day Avg",        f"{latest['sentiment_7d_avg']:.2f}")
+    # last_n = 5
+    # recent = filtered.sort_values("date").tail(last_n)
+
+    # for _, row in recent.iterrows():
+    #     fs  = row["final_sentiment_score"]
+    #     s1  = row["sentiment_1d"]
+    #     s3  = row["sentiment_3d_avg"]
+    #     s7  = row["sentiment_7d_avg"]
+
+    #     c1, c2, c3 = st.columns(3, gap="small")
+    #     c1.metric("Final Sentiment",  f"{fs:.2f}")
+    #     c2.metric("3-Day Avg",        f"{s3:.2f}")
+    #     c3.metric("7-Day Avg",        f"{s7:.2f}")
+    #     st.markdown("---")
 
     # Top tweets and headlines
-    st.subheader("Top Contributing Tweets and News")
-    if "description" in filtered.columns:
-        st.markdown("**Top 3 Tweets:**")
-        top_tweets = filtered.sort_values("final_sentiment_score", ascending=False)["description"].head(3)
-        for tweet in top_tweets:
-            st.info(tweet)
+    # st.subheader("Top Contributing Tweets and News")
+    # if "description" in filtered.columns:
+    #     st.markdown("**Top 3 Tweets:**")
+    #     top_tweets = filtered.sort_values("final_sentiment_score", ascending=False)["description"].head(3)
+    #     for tweet in top_tweets:
+    #         st.info(tweet)
 
-    if "embed_title" in filtered.columns:
-        st.markdown("**Top 3 News Headlines:**")
-        top_news = filtered.sort_values("final_sentiment_score", ascending=False)["embed_title"].head(3)
-        for headline in top_news:
-            st.success(headline)
+    # if "embed_title" in filtered.columns:
+    #     st.markdown("**Top 3 News Headlines:**")
+    #     top_news = filtered.sort_values("final_sentiment_score", ascending=False)["embed_title"].head(3)
+    #     for headline in top_news:
+    #         st.success(headline)
+    st.subheader("Top 3 Tweets by Sentiment")
+    top_t = get_top_tweets(selected_ticker, 3)
+    for _, row in top_t.iterrows():
+        st.info(f"{row['clean_text']}\n\n Score: {row['sentiment_score']:.2f}")
+
+    st.subheader("Top 3 News Headlines by Sentiment")
+    top_n = get_top_news(selected_ticker, 3)
+    for _, row in top_n.iterrows():
+        st.success(f"{row['description']}\n\n Score: {row['sentiment_score']:.2f}")

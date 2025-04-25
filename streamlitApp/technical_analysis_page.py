@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-
+import ast
+import numpy as np
 
 def run():
     st.title("📉 Technical Analysis")
@@ -10,12 +11,24 @@ def run():
     tech_df = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/technical_indicators_wrds_output.csv")
     tickers = tech_df["TICKER"].unique()
 
-    selected_ticker = st.selectbox("Select a Ticker:", tickers)
-    selected = tech_df[tech_df["TICKER"] == selected_ticker]
+    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    # # Ticker selector
+    # selected_ticker = st.selectbox("Select a Ticker:", tickers)
+    mapping = ast.literal_eval("{" + txt + "}")
 
-    if selected.empty:
-        st.warning("No technical data available for this ticker.")
-        return
+    # 2) Prepare list of tickers
+    tickers = list(mapping.keys())
+
+    # 3) Build the selectbox
+    selected_ticker = st.selectbox(
+        "Select a Company:",
+        tickers,
+        format_func=lambda t: f"{mapping[t]}\n({t})"
+    )
+
+    # 4) Use the selection
+    st.write("You picked:", mapping[selected_ticker], f"({selected_ticker})")
+    selected = tech_df[tech_df["TICKER"] == selected_ticker]
 
     latest = selected.sort_values("date").iloc[-1]
 
@@ -35,12 +48,26 @@ def run():
 
     # Similar stocks (based on same MA signal and similar Sharpe ratio)
     st.subheader("Top 5 Technically Similar Stocks")
-    threshold = 0.3
-    others = tech_df[(tech_df["TICKER"] != selected_ticker) & (tech_df["ma_signal"] == latest["ma_signal"])]
-    others["sharpe_diff"] = (others["sharpe_ratio"] - latest["sharpe_ratio"]).abs()
-    similar = others.sort_values("sharpe_diff").head(5)
 
-    if not similar.empty:
-        st.dataframe(similar[["TICKER", "sharpe_ratio", "ma_signal"]])
-    else:
-        st.info("No similar stocks found.")
+    summary = (
+    tech_df
+    .sort_values("date")
+    .drop_duplicates(subset="TICKER", keep="last")
+    .reset_index(drop=True)
+)
+
+    # 3) Now when you pick `latest`, do it from `summary`
+    latest = summary[summary["TICKER"] == selected_ticker].iloc[0]
+
+    # 4) Filter others *also* from the summary
+    others = summary[
+        (summary["ma_signal"] == latest["ma_signal"]) &
+        (summary["TICKER"] != selected_ticker)
+    ].copy()
+
+    # 5) Compute sharpe difference & grab the closest five tickers
+    others["sharpe_diff"] = np.abs(others["sharpe_ratio"] - latest["sharpe_ratio"])
+    similar = others.nsmallest(5, "sharpe_diff")
+
+    # 6) Display those five unique tickers
+    st.dataframe(similar[["TICKER","COMNAM","sharpe_ratio","ma_signal"]])
