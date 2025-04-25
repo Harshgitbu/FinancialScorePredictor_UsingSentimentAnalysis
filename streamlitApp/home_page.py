@@ -10,7 +10,7 @@ def run():
     st.markdown("""
     Welcome to **StockSense** — your all-in-one platform for:
     
-    - 📈 Real-time **Sentiment Analysis** from Twitter & News
+    - 📈 **Sentiment Analysis** from Twitter & News
     - 📊 Deep **Fundamental Analysis** of company financials
     - 📉 Smart **Technical Analysis** using Moving Averages, Bollinger Bands, and Sharpe Ratios
     - 🧠 Combined **Final Verdict Engine** with customizable weights
