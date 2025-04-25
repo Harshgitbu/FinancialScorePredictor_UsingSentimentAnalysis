@@ -136,6 +136,33 @@ def run():
     #     c3.metric("7-Day Avg",        f"{s7:.2f}")
     #     st.markdown("---")
 
+    # Predict Action
+    st.markdown("---")
+    st.subheader("🧠 Predict Action Based on Custom Headline")
+    user_input = st.text_input("Enter a recent headline or tweet about this stock:", placeholder="e.g. Strong Q2 earnings, great future outlook!")
+
+    if user_input:
+        score = 0.7 if "good" in user_input.lower() or "strong" in user_input.lower() else -0.3
+        row = filtered.sort_values("date").iloc[-1]
+
+        model_features = [
+            'price','volume','low_bid','high_ask','sp500_return',
+            'news_score','twitter_score','final_sentiment_score',
+            'sentiment_1d','sentiment_3d_avg','sentiment_7d_avg',
+            'ret3','vol7','vma7','bidask_spread'
+        ]
+
+        input_data = row[model_features].copy()
+        input_data['news_score'] = score
+        input_data['final_sentiment_score'] = 0.65 * score + 0.35 * row['twitter_score']
+        input_df = pd.DataFrame([input_data])
+
+        model = load("models/final_xgb_model.pkl")
+        le = load("models/label_encoder.pkl")
+        pred_action = le.inverse_transform(model.predict(input_df))[0]
+
+        st.success(f"📢 Model Prediction: {pred_action} for {selected_ticker}")
+
     # Top tweets and headlines
     # st.subheader("Top Contributing Tweets and News")
     # if "description" in filtered.columns:
