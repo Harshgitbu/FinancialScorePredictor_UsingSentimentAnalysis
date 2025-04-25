@@ -7,9 +7,9 @@ def run():
     st.title("📊 Fundamental Analysis")
 
     # Load data
-    fundamentals = pd.read_csv("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/fundamental_scores_wrds.csv")
+    fundamentals = pd.read_csv("/data/fundamental_scores_wrds.csv")
     tickers = fundamentals["tic"].unique()
-    txt = open("C:/Users/ishan/Desktop/ISHANAY/BU docs/Spring 2025/Financial_analytics/Project/FinancialScorePredictor_UsingSentimentAnalysis/data/company_name_ticker.txt").read().strip()
+    txt = open("/data/company_name_ticker.txt").read().strip()
     # # Ticker selector
     # selected_ticker = st.selectbox("Select a Ticker:", tickers)
     mapping = ast.literal_eval("{" + txt + "}")
